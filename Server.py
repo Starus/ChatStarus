@@ -1,10 +1,10 @@
 #!/usr/bin/python
-#import
 import socket
 
 #constantes
 s = socket.socket()
-host = "127.0.0.1"
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #reuse address
+host = "0.0.0.0"
 port = 25525
 s.bind((host, port))
 #funciones
@@ -14,7 +14,14 @@ s.listen(5)
 
 while True:
     c, addr = s.accept()
-    print "Joind" , addr
-    c.send("Gracias por entrar.")
-    print s.recv(1024)
-    c.close()
+    while True:
+        #print "Joind" , addr
+        #c.send("Gracias por entrar.")
+        data = c.recv(1024)
+        if data == "exit":
+            c.send("\0\xDE\xAD\0")
+            c.close()
+            break
+        if data:
+		    print "data: %s" % data
+		    c.send("%s" % data)
